@@ -80,6 +80,7 @@ CREATE TABLE Recruiter(
     Fname VARCHAR(50) NOT NULL,
     Lname VARCHAR(50) NOT NULL,
     Phone_num VARCHAR(30) NOT NULL,
+    Cname VARCHAR(50) NOT NULL UNIQUE,
     PRIMARY KEY(Lname, User_id),
     FOREIGN KEY(User_id) REFERENCES Company(User_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -145,4 +146,19 @@ UPDATE Company
 SET Company.Username =  Account.Username
 FROM Company, Account
 WHERE Account.Email=Company.Email;
+
+
+-- insert a recruiter
+INSERT INTO Recruiter(Fname, Lname, Phone_num, Cname, User_id)
+VALUES('Mohammad', 'Makkawi', '961 76 454 533', 'Anghami', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
+
+--when applying to a job post
+INSERT INTO JobPost(Job_title, Job_desc, Post_date, Exp_years, Salary,Rname, User_id)
+VALUES('Cashier','A Cashier, or Retail Cashier, is responsible for processing cash, debit, 
+credit and check transactions using a cash register or other point-of-sale system in a retail environment.
+Their duties include balancing the cash register
+, making change, recording purchases, processing returns and scanning items for sale.',	'2022-07-09',0,150.00,'Makkawi',(SELECT User_id FROM Recruiter WHERE Recruiter.Lname = 'Makkawi'));
+
+
+
 
