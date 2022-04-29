@@ -118,47 +118,127 @@ CREATE TABLE Searches(
     FOREIGN KEY(Job_id) REFERENCES JobPost(Job_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
--- when a job seeker signs up, create account
+-- 1) when a job seeker signs up, create account
 INSERT INTO Account(Username, Pass, Email) VALUES('sara.a', '22asdfghjk78', 'sara001@hotmail.com');
 
--- to insert this account's info
+-- 2) to insert this account's info
 INSERT INTO JobSeeker(Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disability, Ssn, Additional_info, Job_title, About_you) 
 VALUES('Sara', 'Ahmad', 'sara001@hotmail.com', '961 81 000 111', 0, 'F', 21, 'Blindness', 345223179, 
 'Completely blind in my right eye, and partially blind in my left eye. My blindness does not prevent me from performing everyday 
 tasks since I have adapted to me disability.', 'Musician', 'I play multiple musical instruments including pianos, guitars, and drums. I also have a fairly good voice.');
 
--- use email since it is a unique attribute to retrieve username of said account
+-- 3) use email since it is a unique attribute to retrieve username of said account
 UPDATE JobSeeker
 SET JobSeeker.Username =  Account.Username
 FROM JobSeeker, Account
 WHERE Account.Email=JobSeeker.Email;
 
 
--- when a company signs up, create account
+-- 4) when a company signs up, create account
 INSERT INTO Account(Username, Pass, Email) VALUES('Anghami', '29swjnd82', 'Info@Anghami.com');
+INSERT INTO Account(Username, Pass, Email) VALUES('Spinneys', '3748sufb767', 'loyalty@spinneys-lebanon.com');
 
--- insert account's info
+-- 5) insert account's info
 INSERT INTO Company(Cname, Email, City, Country, Website)
 VALUES('Anghami', 'Info@Anghami.com', 'Beirut', 'Lebanon', 'https://www.anghami.com');
 
--- use email since it is a unique attribute to retrieve username of said account
+-- 6) use email since it is a unique attribute to retrieve username of said account
 UPDATE Company
 SET Company.Username =  Account.Username
 FROM Company, Account
 WHERE Account.Email=Company.Email;
 
+-- 5) repeated - insert account's info
+INSERT INTO Company(Cname, Email, City, Country, Website)
+VALUES('Spinneys', 'loyalty@spinneys-lebanon.com', 'Beirut', 'Lebanon', 'https://www.spinneyslebanon.com');
 
--- insert a recruiter
+-- 6) repeated - use email since it is a unique attribute to retrieve username of said account
+UPDATE Company
+SET Company.Username =  Account.Username
+FROM Company, Account
+WHERE Account.Email=Company.Email;
+
+-- 7) insert locations of said company
+INSERT INTO Located(Locations, Company_id) VALUES('Beirut, Lebanon', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
+INSERT INTO Located(Locations, Company_id)  VALUES('Cairo, Egypt', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
+INSERT INTO Located(Locations, Company_id)  VALUES('Abu Dhabi, UAE', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
+INSERT INTO Located(Locations, Company_id)  VALUES('Riyadh, KSA', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
+
+INSERT INTO Located(Locations, Company_id)  VALUES('Beirut, Lebanon', (SELECT User_id FROM Company WHERE Company.Cname = 'Spinneys'));
+INSERT INTO Located(Locations, Company_id)  VALUES('Mount Lebanon, Lebanon', (SELECT User_id FROM Company WHERE Company.Cname = 'Spinneys'));
+INSERT INTO Located(Locations, Company_id)  VALUES('North Lebanon, Lebanon', (SELECT User_id FROM Company WHERE Company.Cname = 'Spinneys'));
+INSERT INTO Located(Locations, Company_id)  VALUES('South Lebanon, Lebanon', (SELECT User_id FROM Company WHERE Company.Cname = 'Spinneys'));
+
+-- 8) insert a recruiter
 INSERT INTO Recruiter(Fname, Lname, Phone_num, Cname, User_id)
 VALUES('Mohammad', 'Makkawi', '961 76 454 533', 'Anghami', (SELECT User_id FROM Company WHERE Company.Cname = 'Anghami'));
 
---when applying to a job post
-INSERT INTO JobPost(Job_title, Job_desc, Post_date, Exp_years, Salary,Rname, User_id)
+INSERT INTO Recruiter(Fname, Lname, Phone_num, Cname, User_id)
+VALUES('Hala', 'Maroun', '961 3 123 321', 'Spinneys', (SELECT User_id FROM Company WHERE Company.Cname = 'Spinneys'));
+
+-- 9) when applying to a job post
+INSERT INTO JobPost(Job_title, Job_desc, Post_date, Exp_years, Salary, Rname, User_id)
 VALUES('Cashier','A Cashier, or Retail Cashier, is responsible for processing cash, debit, 
 credit and check transactions using a cash register or other point-of-sale system in a retail environment.
 Their duties include balancing the cash register
-, making change, recording purchases, processing returns and scanning items for sale.',	'2022-07-09',0,150.00,'Makkawi',(SELECT User_id FROM Recruiter WHERE Recruiter.Lname = 'Makkawi'));
+, making change, recording purchases, processing returns and scanning items for sale.',	'2022-07-09',0,150.00,'Maroun',(SELECT User_id FROM Recruiter WHERE Recruiter.Lname = 'Maroun'));
 
+-- 10) search for a company named Spinneys
+SELECT Cname, Email, City, Country, Website
+FROM Company
+WHERE Cname = 'Spinneys';
 
+-- 11) search for a job seeker named Sara Ahmad
+SELECT Username, Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disability, Additional_info, Ssn, Job_title, About_you, Cv
+FROM JobSeeker
+WHERE Fname = 'Sara' AND Lname = 'Ahmad';
 
+-- 12) job seeker sara.a searches for a job post by company name -- Spinneys therefore all the results are added to Searches relation
+SELECT Job_title, Job_desc, Post_date, Exp_years, Salary, Recruiter.Fname,  Recruiter.Lname, Recruiter.Cname
+FROM JobPost, Recruiter
+WHERE JobPost.User_id IN(
+    SELECT User_id
+    FROM Company
+    WHERE Cname = 'Spinneys'
+) AND Recruiter.User_id IN(
+    SELECT User_id
+    FROM Company
+    WHERE Cname = 'Spinneys'
+);
+-- continue - insert user_id of username sara.a and job_id of all jobs she searched for using nested queries
+INSERT INTO Searches(User_id, Job_id) 
+VALUES((SELECT User_id FROM JobSeeker WHERE Username = 'sara.a'), 
+(SELECT Job_id
+FROM JobPost, Recruiter
+WHERE JobPost.User_id IN(
+    SELECT User_id
+    FROM Company
+    WHERE Cname = 'Spinneys'
+) AND Recruiter.User_id IN(
+    SELECT User_id
+    FROM Company
+    WHERE Cname = 'Spinneys'
+)));
 
+-- 13) search for companies by location -- Beirut
+SELECT Cname, Email, City, Country, Website
+FROM Company AS C, Located AS L
+WHERE C.User_id = L.Company_id AND L.Locations = 'Beirut, Lebanon';
+
+-- 14) job seeker with username sara.a applies for a job with job_id 1000
+INSERT INTO Applies(User_id, Job_id) 
+VALUES((SELECT User_id FROM JobSeeker WHERE Username = 'sara.a'), 1000);
+
+-- 15) user tries to log into account, check if username and password exist
+SELECT *
+FROM Account
+WHERE Username = 'sara.a' AND Pass = '22asdfghjk78';
+
+-- 16) display all jobs a user with username sara.a has searched for
+SELECT JobPost.Job_title, Job_desc, Post_date, Exp_years, Salary
+FROM Searches, JobPost
+WHERE Searches.User_id IN(
+    SELECT User_id
+    FROM JobSeeker
+    WHERE Username = 'sara.a'
+);
