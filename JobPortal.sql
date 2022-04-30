@@ -242,3 +242,28 @@ WHERE Searches.User_id IN(
     FROM JobSeeker
     WHERE Username = 'sara.a'
 );
+
+-- 17) search for all job seekers with disability = blind
+SELECT Username, Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disability, Additional_info, Ssn, Job_title, About_you, Cv
+FROM JobSeeker
+WHERE Disability LIKE '%blind%' OR Disability LIKE '%Blind%';
+
+-- 18) search for all job seekers with job title musician
+SELECT Username, Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disability, Additional_info, Ssn, Job_title, About_you, Cv
+FROM JobSeeker
+WHERE Job_title LIKE '%Musician' OR Job_title LIKE '%musician%';
+
+
+-- 19) filter  all job seekers with job title musician and experience at least 2 years
+SELECT Username, Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disability, Additional_info, Ssn, Job_title, About_you, Cv
+FROM JobSeeker
+WHERE (Job_title LIKE '%Musician' OR Job_title LIKE '%musician%') AND Experience >= 2;
+
+-- 20) sort my company name a-z
+SELECT Cname, Email, City, Country, Website
+FROM Company
+ORDER BY Cname ASC;
+
+-- 21) delete a job seekers account with username salwa
+DELETE FROM JobSeeker WHERE Username = 'salwa';
+DELETE FROM Account WHERE Username = 'salwa';
