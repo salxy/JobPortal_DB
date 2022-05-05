@@ -259,7 +259,7 @@ SELECT Username, Fname, Lname, Email, Phone_num, Experience, Gender, Age, Disabi
 FROM JobSeeker
 WHERE (Job_title LIKE '%Musician' OR Job_title LIKE '%musician%') AND Experience >= 2;
 
--- 20) sort my company name a-z
+-- 20) sort by company name a-z
 SELECT Cname, Email, City, Country, Website
 FROM Company
 ORDER BY Cname ASC;
@@ -267,3 +267,77 @@ ORDER BY Cname ASC;
 -- 21) delete a job seekers account with username salwa
 DELETE FROM JobSeeker WHERE Username = 'salwa';
 DELETE FROM Account WHERE Username = 'salwa';
+
+-- 22) order job posts by salary highest to lowest
+SELECT JobPost.Job_title, Job_desc, Post_date, Exp_years, Salary
+FROM JobPost
+ORDER BY Salary Desc;
+
+-- 23) order job posts by salary lowest to highest
+SELECT JobPost.Job_title, Job_desc, Post_date, Exp_years, Salary
+FROM JobPost
+ORDER BY Salary Asc;
+
+-- 24) update username on job seeker's account (should be unique)
+UPDATE Account
+SET Username = 'sara011'
+Where Username = 'sara.a';
+
+UPDATE JobSeeker
+SET Username = 'sara011'
+Where Username = 'sara.a';
+
+-- 25) update any other info (not pk or fk) in job seeker
+UPDATE JobSeeker
+SET Phone_num = '961 81 231 998'
+Where Username = 'sara011';
+
+-- 26) update username on company's account (should be unique)
+UPDATE Account
+SET Username = 'AnghamiPlus'
+Where Username = 'Anghami';
+
+UPDATE Company
+SET Username = 'AnghamiPlus'
+Where Username = 'Anghami';
+
+-- 27) job seeker sara011 searches for a job post by job title cashier
+SELECT Job_title, Job_desc, Post_date, Exp_years, Salary, R.Fname,  R.Lname, R.Cname
+FROM JobPost AS J, Recruiter AS R
+WHERE (Job_title LIKE '%Cashier%' OR Job_desc LIKE '%cashier%') AND J.User_id = R.User_id;
+
+-- continue - insert user_id of username sara.a and job_id of all jobs she searched for using nested queries
+INSERT INTO Searches(User_id, Job_id) 
+VALUES((SELECT User_id FROM JobSeeker WHERE Username = 'sara011'), 
+(SELECT Job_id
+FROM JobPost AS J, Recruiter AS R
+WHERE (Job_title LIKE '%Cashier%' OR Job_desc LIKE '%cashier%') AND J.User_id = R.User_id));
+
+-- 28) sort job posts from newest to oldest
+SELECT DISTINCT Job_title, Job_desc, Post_date, Exp_years, Salary, R.Fname,  R.Lname, R.Cname
+FROM JobPost AS J, Recruiter AS R
+WHERE J.User_id = R.User_id
+ORDER BY Post_date DESC;
+
+-- 29) display all jobs a user with username sara.a has applied to
+SELECT JobPost.Job_title, Job_desc, Post_date, Exp_years, Salary
+FROM Applies, JobPost
+WHERE Applies.User_id IN(
+    SELECT User_id
+    FROM JobSeeker
+    WHERE Username = 'sara011'
+);
+
+-- 30) delete a company account with username H&M
+DELETE FROM JobSeeker WHERE Username = 'H&M';
+DELETE FROM Account WHERE Username = 'H&M';
+
+-- 31) update salary on job post (same for any other info)
+UPDATE JobPost
+SET Salary = 2000
+WHERE Job_id = 1000;
+
+-- 32) display all job posts
+SELECT JobPost.Job_title, Job_desc, Post_date, Exp_years, Salary
+FROM JobPost;
+
