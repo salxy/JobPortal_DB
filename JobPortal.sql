@@ -426,3 +426,5 @@ WHERE Job_id = 1000;
 --DELETE FROM JobPost WHERE User_id IN( SELECT User_id FROM Company WHERE Cname = 'H&M');
 --DELETE FROM JobSeeker WHERE Username = 'H&M';
 --DELETE FROM Account WHERE Username = 'H&M';
+
+-- comment
